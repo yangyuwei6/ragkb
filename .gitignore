@@ -1,0 +1,23 @@
+# Build artifacts
+/bin/
+*.exe
+.gocache/
+
+# Local config and secrets
+/configs/config.yaml
+.env
+
+# Logs
+*.log
+
+# Go dependency cache is managed by modules, do not vendor by default
+/vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

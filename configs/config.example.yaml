@@ -1,0 +1,72 @@
+# RAGKB 配置示例。
+# 复制为 configs/config.yaml 后按本地环境修改；configs/config.yaml 不提交到 git。
+
+http:
+  addr: ":8080"
+
+mysql:
+  dsn: "root:123456@tcp(127.0.0.1:3306)/ragkb?charset=utf8mb4&parseTime=True&loc=Local"
+
+redis:
+  addr: "127.0.0.1:6379"
+  password: ""
+  db: 0
+
+elasticsearch:
+  url: "http://127.0.0.1:9200"
+  index_name: "chunks_bm25"
+
+qdrant:
+  host: "127.0.0.1"
+  port: 6334
+  collection: "chunks_vec"
+
+minio:
+  endpoint: "127.0.0.1:9000"
+  access_key: "minioadmin"
+  secret_key: "minioadmin"
+  bucket: "ragkb"
+  use_ssl: false
+
+kafka:
+  brokers:
+    - "127.0.0.1:9092"
+  topic: "doc.ingest"
+  dlq_topic: "doc.ingest.dlq"
+  group_id: "ragkb-worker"
+
+tika:
+  url: "http://127.0.0.1:9998"
+
+ai:
+  llm_base_url: "https://api.deepseek.com"
+  llm_model: "deepseek-chat"
+  llm_api_key: ""
+  embedding_base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  embedding_model: "text-embedding-v4"
+  embedding_api_key: ""
+  embedding_dimensions: 1024
+  embedding_batch_size: 32
+  embedding_concurrency: 4
+  rerank_base_url: ""
+  rerank_model: ""
+  rerank_api_key: ""
+
+jwt:
+  secret: "replace-with-a-local-random-secret"
+  expire_hours: 2
+  refresh_expire_hours: 168
+
+upload:
+  max_file_size_mb: 100
+  allowed_exts: ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "md", "txt"]
+
+search:
+  top_k: 5
+  recall_k: 50
+  rrf_k: 60
+  rerank_timeout_ms: 800
+
+log:
+  level: "info"
+  mode: "dev"
