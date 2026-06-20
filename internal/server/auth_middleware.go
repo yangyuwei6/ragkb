@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"ragkb/internal/handler/shared"
-	jwtinfra "ragkb/internal/infra/jwt"
+	"ragkb/internal/pkg/token"
 	"ragkb/internal/response"
 )
 
 // JWTAuth 是鉴权中间件：解析 Authorization: Bearer <token> 里的 access token。
-func JWTAuth(tm *jwtinfra.TokenManager) gin.HandlerFunc {
+func JWTAuth(tm *token.TokenManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		raw := c.GetHeader("Authorization")
 		token, ok := bearerToken(raw)

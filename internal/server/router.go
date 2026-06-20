@@ -7,7 +7,7 @@ import (
 	authhandler "ragkb/internal/handler/auth"
 	documenthandler "ragkb/internal/handler/document"
 	userhandler "ragkb/internal/handler/user"
-	jwtinfra "ragkb/internal/infra/jwt"
+	"ragkb/internal/pkg/token"
 )
 
 // Options groups dependencies required by the HTTP router.
@@ -15,7 +15,7 @@ type Options struct {
 	Mode   string
 	Logger *zap.Logger
 
-	Tokens   *jwtinfra.TokenManager
+	Tokens   *token.TokenManager
 	Auth     *authhandler.Handler
 	User     *userhandler.Handler
 	Document *documenthandler.Handler

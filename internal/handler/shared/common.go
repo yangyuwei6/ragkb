@@ -7,7 +7,7 @@ import (
 
 	documentdomain "ragkb/internal/domain/document"
 	userdomain "ragkb/internal/domain/user"
-	jwtinfra "ragkb/internal/infra/jwt"
+	"ragkb/internal/pkg/token"
 	"ragkb/internal/response"
 )
 
@@ -40,7 +40,7 @@ func RespondError(c *gin.Context, err error) {
 		response.Error(c, response.CodeConflict, err.Error())
 	case errors.Is(err, userdomain.ErrInvalidCredentials),
 		errors.Is(err, userdomain.ErrInvalidToken),
-		errors.Is(err, jwtinfra.ErrInvalidToken):
+		errors.Is(err, token.ErrInvalidToken):
 		response.Error(c, response.CodeUnauthorized, err.Error())
 	case errors.Is(err, documentdomain.ErrFileTooLarge),
 		errors.Is(err, documentdomain.ErrUnsupportedType),

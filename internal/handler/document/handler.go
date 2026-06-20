@@ -8,23 +8,22 @@ import (
 
 	"ragkb/internal/handler/shared"
 	"ragkb/internal/response"
-	"ragkb/internal/service/document"
+	documentservice "ragkb/internal/service/document"
 )
 
-// maxPartSize 限制单个分片请求体大小（10MB），防止超大 body 打爆内存。
 const maxPartSize = 10 << 20
 
-// Handler 处理分片上传、合并、列表、详情、删除。
+// Handler 处理文档上传、合并、查询和删除相关的 HTTP 请求。
 type Handler struct {
-	docs *service.DocumentService
+	docs *documentservice.DocumentService
 }
 
-// NewHandler 构造文档 handler。
-func NewHandler(docs *service.DocumentService) *Handler {
+// NewHandler 创建文档 HTTP handler。
+func NewHandler(docs *documentservice.DocumentService) *Handler {
 	return &Handler{docs: docs}
 }
 
-// Initiate POST /api/v1/documents
+// Initiate 发起一次分片上传，并返回已上传分片或秒传结果。
 func (h *Handler) Initiate(c *gin.Context) {
 	uid, ok := shared.CurrentUserID(c)
 	if !ok {
@@ -36,7 +35,7 @@ func (h *Handler) Initiate(c *gin.Context) {
 		response.Error(c, response.CodeBadRequest, err.Error())
 		return
 	}
-	res, err := h.docs.InitiateUpload(c.Request.Context(), service.InitiateParams{
+	res, err := h.docs.InitiateUpload(c.Request.Context(), documentservice.InitiateParams{
 		OwnerID:    uid,
 		FileMD5:    req.FileMD5,
 		FileName:   req.FileName,
@@ -52,7 +51,7 @@ func (h *Handler) Initiate(c *gin.Context) {
 	response.OK(c, res)
 }
 
-// UploadPart PUT /api/v1/documents/{id}/parts/{partNumber}
+// UploadPart 上传单个分片。partNumber 从 0 开始，重复上传同一分片应保持幂等。
 func (h *Handler) UploadPart(c *gin.Context) {
 	uid, ok := shared.CurrentUserID(c)
 	if !ok {
@@ -86,7 +85,7 @@ func (h *Handler) UploadPart(c *gin.Context) {
 	response.OK(c, gin.H{"partNumber": partNumber, "uploaded": true})
 }
 
-// Complete POST /api/v1/documents/{id}/complete
+// Complete 合并所有分片，并发布文档摄取事件。
 func (h *Handler) Complete(c *gin.Context) {
 	uid, ok := shared.CurrentUserID(c)
 	if !ok {
@@ -111,7 +110,7 @@ func (h *Handler) Complete(c *gin.Context) {
 	response.OK(c, doc)
 }
 
-// List GET /api/v1/documents
+// List 返回当前用户可见的文档列表。
 func (h *Handler) List(c *gin.Context) {
 	uid, ok := shared.CurrentUserID(c)
 	if !ok {
@@ -129,7 +128,7 @@ func (h *Handler) List(c *gin.Context) {
 	response.OK(c, documentListResponse{Items: docs, Total: total, Page: page, Size: size})
 }
 
-// Get GET /api/v1/documents/{id}
+// Get 返回当前用户拥有的单个文档详情。
 func (h *Handler) Get(c *gin.Context) {
 	uid, ok := shared.CurrentUserID(c)
 	if !ok {
@@ -149,7 +148,7 @@ func (h *Handler) Get(c *gin.Context) {
 	response.OK(c, doc)
 }
 
-// Delete DELETE /api/v1/documents/{id}
+// Delete 软删除文档，并发布索引清理事件。
 func (h *Handler) Delete(c *gin.Context) {
 	uid, ok := shared.CurrentUserID(c)
 	if !ok {

@@ -1,4 +1,4 @@
-package jwt
+package token
 
 import (
 	"errors"
@@ -51,10 +51,10 @@ func (m *TokenManager) GenerateAccessToken(userID int64) (string, error) {
 }
 
 // GenerateRefreshToken 签发长期 refresh token，并返回 jti。
-func (m *TokenManager) GenerateRefreshToken(userID int64) (token, jti string, err error) {
+func (m *TokenManager) GenerateRefreshToken(userID int64) (tok, jti string, err error) {
 	jti = uuid.NewString()
-	token, err = m.sign(userID, typeRefresh, jti, m.refreshExpire)
-	return token, jti, err
+	tok, err = m.sign(userID, typeRefresh, jti, m.refreshExpire)
+	return tok, jti, err
 }
 
 func (m *TokenManager) sign(userID int64, typ, jti string, ttl time.Duration) (string, error) {
@@ -73,18 +73,18 @@ func (m *TokenManager) sign(userID int64, typ, jti string, ttl time.Duration) (s
 }
 
 // ParseAccessToken 解析并校验 access token。
-func (m *TokenManager) ParseAccessToken(token string) (*Claims, error) {
-	return m.parse(token, typeAccess)
+func (m *TokenManager) ParseAccessToken(raw string) (*Claims, error) {
+	return m.parse(raw, typeAccess)
 }
 
 // ParseRefreshToken 解析并校验 refresh token。
-func (m *TokenManager) ParseRefreshToken(token string) (*Claims, error) {
-	return m.parse(token, typeRefresh)
+func (m *TokenManager) ParseRefreshToken(raw string) (*Claims, error) {
+	return m.parse(raw, typeRefresh)
 }
 
-func (m *TokenManager) parse(token, wantType string) (*Claims, error) {
+func (m *TokenManager) parse(raw, wantType string) (*Claims, error) {
 	claims := &Claims{}
-	_, err := gjwt.ParseWithClaims(token, claims, func(t *gjwt.Token) (any, error) {
+	_, err := gjwt.ParseWithClaims(raw, claims, func(t *gjwt.Token) (any, error) {
 		if _, ok := t.Method.(*gjwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}

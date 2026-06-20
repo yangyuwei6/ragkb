@@ -7,7 +7,7 @@ import (
 	"time"
 
 	userdomain "ragkb/internal/domain/user"
-	jwtinfra "ragkb/internal/infra/jwt"
+	"ragkb/internal/pkg/token"
 )
 
 // refreshStore 是 auth service 依赖的 refresh token 存储契约。
@@ -28,12 +28,12 @@ type TokenPair struct {
 type AuthService struct {
 	users   userdomain.UserRepo
 	tenants userdomain.TenantRepo
-	tokens  *jwtinfra.TokenManager
+	tokens  *token.TokenManager
 	refresh refreshStore
 }
 
 // NewAuthService 构造认证服务。
-func NewAuthService(users userdomain.UserRepo, tenants userdomain.TenantRepo, tokens *jwtinfra.TokenManager, refresh refreshStore) *AuthService {
+func NewAuthService(users userdomain.UserRepo, tenants userdomain.TenantRepo, tokens *token.TokenManager, refresh refreshStore) *AuthService {
 	return &AuthService{users: users, tenants: tenants, tokens: tokens, refresh: refresh}
 }
 

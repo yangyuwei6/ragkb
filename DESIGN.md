@@ -878,58 +878,6 @@ POST /api/v1/conversations/{id}/messages
 
 ## 12. 目录结构
 
-```
-ragkb/
-├── cmd/
-│   ├── api/                     # HTTP API 进程入口，只做启动与优雅关闭
-│   └── worker/                  # Kafka worker 进程入口，只做启动与优雅关闭
-├── configs/
-│   ├── config.example.yaml      # 可提交的配置模板
-│   └── config.yaml              # 本地私有配置，忽略 git
-├── deploy/
-│   └── docker-compose.yaml      # 本地依赖：MySQL/Redis/ES/Qdrant/MinIO/Kafka/Tika
-├── migrations/
-│   └── init.sql                 # MySQL 初始化建表脚本
-└── internal/
-    ├── bootstrap/               # 进程级依赖装配：api / worker
-    ├── config/                  # yaml 配置结构、默认值、校验
-    ├── domain/                  # 领域模型、领域错误、仓储接口
-    │   ├── document/
-    │   └── user/
-    ├── service/                 # API 用例编排：认证、用户、文档上传
-    ├── handler/                 # HTTP handler 与 DTO
-    │   ├── auth/
-    │   ├── document/
-    │   ├── shared/
-    │   └── user/
-    ├── indexing/                # worker 索引维护用例：抽取、分块、embedding、双写索引、删除清理
-    │   └── chunker/             # 分块策略实现
-    ├── retrieval/               # 在线检索用例：并行召回、RRF 融合、rerank 降级、chunk 回填
-    ├── infra/                   # 外部基础设施适配，具体 SDK 不向业务层泄漏
-    │   ├── elasticsearch/
-    │   ├── embedding/
-    │   ├── jwt/
-    │   ├── kafka/
-    │   ├── minio/
-    │   ├── mysql/
-    │   ├── qdrant/
-    │   ├── redis/
-    │   └── tika/
-    ├── observability/           # 日志、后续 trace/metrics
-    ├── response/                # 统一 HTTP 响应包装
-    └── server/                  # Gin router 与中间件
-```
-
-目录边界原则：
-
-- `cmd/*` 不写业务逻辑，只负责读取配置、创建 logger、调用 `bootstrap`、监听退出信号。
-- `domain/*` 只放领域模型、领域错误、仓储接口；不依赖 MySQL/Redis/ES/Qdrant 等具体实现。
-- `service/*` 面向 HTTP API 用例，处理上传、用户、认证等同步业务流程。
-- `indexing/*` 面向 worker 索引维护用例，编排 Tika、分块、embedding、MySQL chunks、ES、Qdrant，并处理删除后的异步物理清理。
-- `retrieval/*` 面向在线检索用例，编排 BM25/向量召回、RRF、rerank 降级与 chunk 内容回填；只依赖接口，不依赖 ES/Qdrant SDK。
-- `infra/*` 放外部系统适配器；第三方 SDK 类型尽量不穿透到 `domain/service/indexing/retrieval`。
-- `handler/shared` 放 handler 层共享的解析/错误映射工具，不放业务规则。
-
 ---
 
 ## 13. 分阶段实施路线

@@ -10,11 +10,11 @@ import (
 	authhandler "ragkb/internal/handler/auth"
 	documenthandler "ragkb/internal/handler/document"
 	userhandler "ragkb/internal/handler/user"
-	jwtinfra "ragkb/internal/infra/jwt"
 	"ragkb/internal/infra/kafka"
 	"ragkb/internal/infra/minio"
 	"ragkb/internal/infra/mysql"
 	"ragkb/internal/infra/redis"
+	"ragkb/internal/pkg/token"
 	"ragkb/internal/server"
 	authservice "ragkb/internal/service/auth"
 	documentservice "ragkb/internal/service/document"
@@ -44,7 +44,7 @@ func NewAPI(cfg *config.Config, logger *zap.Logger) (*API, error) {
 		return nil, fmt.Errorf("init minio: %w", err)
 	}
 
-	tokens := jwtinfra.NewTokenManager(cfg.JWT)
+	tokens := token.NewTokenManager(cfg.JWT)
 	userRepo := mysql.NewUserRepo(db)
 	tenantRepo := mysql.NewTenantRepo(db)
 	docRepo := mysql.NewDocumentRepo(db)
